@@ -104,7 +104,7 @@ int main(int argc, const char *argv[])
 
         //free
         pcap_close(pcap_handle);
-
+        printf("Have %d ip\n",ipcnt);
         return 0;
     }
     else
