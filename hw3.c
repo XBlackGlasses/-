@@ -45,13 +45,21 @@ static void dump_tcp(u_int32_t length, const u_char *content);
 static void dump_udp(u_int32_t length, const u_char *content);
 static void pcap_callback(u_char *arg, const struct pcap_pkthdr *header, const u_char *content);
 
+typedef struct pair
+{
+    char src[16];
+    char des[16];
+    int check;
+}Pair;
+Pair pair[100];
+int paircnt = 0;
 int ipcnt = 0;
 
 int main(int argc, const char *argv[])
 {
     char errbuf[PCAP_ERRBUF_SIZE];
     char *device = NULL;
-
+    int i, j;
     if (argc > 2)
     {
         char *filename = argv[2];
@@ -76,7 +84,7 @@ int main(int argc, const char *argv[])
 //                printf("Length: %d bytes\n", header->len);
 //                printf("Capture length: %d bytes\n", header->caplen);
      
-        	  pcap_loop(pcap_handle, 5, pcap_callback, NULL);
+        	  pcap_loop(pcap_handle, 1, pcap_callback, NULL);
                 //print packet in hex dump
 //               for(int i = 0 ; i < header->caplen ; i++) {
 //                 printf("%02x ", content[i]);
@@ -104,7 +112,27 @@ int main(int argc, const char *argv[])
 
         //free
         pcap_close(pcap_handle);
-        printf("Have %d ip\n",ipcnt);
+        printf("ip have %d\n",ipcnt);
+        int num = 1;
+        for(i = 0; i < paircnt; i++)
+        {
+            if(pair[i].check == 1)
+            {
+                num = 1;
+                for(j = i+1; j < paircnt; j++)
+                {
+                    if(pair[j].check == 1)
+                    {
+                        if(strcmp(pair[i].src, pair[j].src) == 0 && strcmp(pair[i].des, pair[j].des) == 0)
+                        {
+                            num++;
+                            pair[j].check = 0;
+                        }
+                    }
+                }
+                printf("src --> dst : %15s -->  %15s   have: %d\n", pair[i].src, pair[i].des, num);
+            }
+        }
         return 0;
     }
     else
@@ -164,6 +192,29 @@ int main(int argc, const char *argv[])
         //free
         pcap_close(handle);
         printf("have %d ip\n",ipcnt);
+        int num = 1;
+        for(i = 0; i < paircnt; i++)
+        {
+            if(pair[i].check == 1)
+            {
+                num = 1;
+                for(j = i+1; j < paircnt; j++)
+                {
+                    if(pair[j].check == 1)
+                    {
+                        if(strcmp(pair[i].src, pair[j].src) == 0 && strcmp(pair[i].des, pair[j].des) == 0)
+                        {
+                            num++;
+                            pair[j].check = 0;
+                        }
+                    }
+                }
+                printf("src --> dst : %15s -->  %15s   have: %d\n", pair[i].src, pair[i].des, num);
+            }
+        }
+            
+
+
         return 0;
     }
 
@@ -358,6 +409,11 @@ static void dump_ip(u_int32_t length, const u_char *content)
     //copy ip address
     snprintf(src_ip, sizeof(src_ip), "%s", ip_ntoa(&ip->ip_src));
     snprintf(dst_ip, sizeof(dst_ip), "%s", ip_ntoa(&ip->ip_dst));
+
+    //紀錄ip src_dst pair 數量
+    strcpy(pair[paircnt].src, src_ip);
+    strcpy(pair[paircnt].des, dst_ip);
+    pair[paircnt++].check = 1;
 
     //print
     printf("Protocol: IP\n");
