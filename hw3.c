@@ -71,28 +71,28 @@ int main(int argc, const char *argv[])
         }
 
         printf("Open: %s\n", filename);
-        int total_amount = 0;
-        int total_bytes = 0;
-        while (1) //抓到封包 將header分析出來
-        {
+//        int total_amount = 0;
+//        int total_bytes = 0;
+//        while (1) //抓到封包 將header分析出來
+//        {
             struct pcap_pkthdr *header = NULL;
             const u_char *content = NULL;
-            int ret = pcap_next_ex(pcap_handle, &header, &content);
-            if (ret == 1)
-            {
+//            int ret = pcap_next_ex(pcap_handle, &header, &content);
+//            if (ret == 1)
+//            {
 //                printf("Time: %s",ctime((time_t*)&(header->ts.tv_sec)));
 //                printf("Length: %d bytes\n", header->len);
 //                printf("Capture length: %d bytes\n", header->caplen);
      
-        	  pcap_loop(pcap_handle, 1, pcap_callback, NULL);
+        	  pcap_loop(pcap_handle, -1, pcap_callback, NULL);
                 //print packet in hex dump
 //               for(int i = 0 ; i < header->caplen ; i++) {
 //                 printf("%02x ", content[i]);
 //                }//end for
 //                total_amount++;
 //                total_bytes += header->caplen;
-            } //end if success
-            else if (ret == 0)
+//            } //end if success
+/*            else if (ret == 0)
             {
                 printf("Timeout\n");
             } //end if timeout
@@ -106,7 +106,7 @@ int main(int argc, const char *argv[])
                 break;
             } //end if read no more packet
         }     //end while
-
+*/
         //result
 //        printf("Read: %d, byte: %d bytes\n", total_amount, total_bytes);
 
